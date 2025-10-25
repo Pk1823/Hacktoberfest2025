@@ -1,0 +1,55 @@
+#include <stdlib.h>
+
+#define HASH_SIZE 10000
+
+typedef struct Node {
+    int key;   // value of nums[i]
+    int val;   // index i
+    struct Node* next;
+} Node;
+
+int hash(int key) {
+    if (key < 0) key = -key;
+    return key % HASH_SIZE;
+}
+
+void insert(Node** hashTable, int key, int val) {
+    int h = hash(key);
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->key = key;
+    newNode->val = val;
+    newNode->next = hashTable[h];
+    hashTable[h] = newNode;
+}
+
+int find(Node** hashTable, int key) {
+    int h = hash(key);
+    Node* temp = hashTable[h];
+    while (temp) {
+        if (temp->key == key) return temp->val;
+        temp = temp->next;
+    }
+    return -1;
+}
+
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* twoSum(int* nums, int numsSize, int target, int* returnSize) {
+    *returnSize = 2;
+    int* result = (int*)malloc(2 * sizeof(int));
+    Node* hashTable[HASH_SIZE] = {0};
+
+    for (int i = 0; i < numsSize; i++) {
+        int complement = target - nums[i];
+        int foundIndex = find(hashTable, complement);
+        if (foundIndex != -1) {
+            result[0] = foundIndex;
+            result[1] = i;
+            return result;
+        }
+        insert(hashTable, nums[i], i);
+    }
+
+    return NULL; // Should never happen as one solution is guaranteed
+}
